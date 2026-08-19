@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Panel - AKL Gaming HUB</title>
+    <!-- SUPABASE JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="adminApp">
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <a href="index.html" class="back-btn">← Back</a>
+            <span class="admin-title">⚙️ Admin Panel (Supabase Mode)</span>
+            <button class="logout-btn" onclick="logout()">Info</button>
+        </div>
+    </header>
+
+    <div id="dashboardScreen" class="dashboard-screen">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🎮</div>
+                <div class="stat-info">
+                    <div class="stat-number" id="totalGames">0</div>
+                    <div class="stat-label">Total Games</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-info">
+                    <div class="stat-number" id="featuredGames">0</div>
+                    <div class="stat-label">Featured</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-actions">
+            <button class="action-btn primary" onclick="showAddForm()">➕ Add New Game</button>
+            <button class="action-btn secondary" onclick="loadGames()">🔄 Refresh List</button>
+        </div>
+
+        <div id="gameForm" class="game-form" style="display:none;">
+            <h3 class="form-title" id="formTitle">➕ Add New Game</h3>
+            <form id="gameFormInputs" onsubmit="saveGame(event)">
+                <input type="hidden" id="editId">
+                
+                <div class="form-group">
+                    <label>Game Name *</label>
+                    <input type="text" id="gameName" placeholder="Enter game name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Platform *</label>
+                    <select id="gamePlatform" required>
+                        <option value="">Select Platform</option>
+                        <option value="android">Android</option>
+                        <option value="psp">PSP</option>
+                        <option value="ps2">PS2</option>
+                        <option value="wii">Wii</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Game Type *</label>
+                    <select id="gameType" required>
+                        <option value="Original">Original</option>
+                        <option value="MOD">MOD</option>
+                        <option value="Full">Full</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Version</label>
+                        <input type="text" id="gameVersion" placeholder="1.0.0">
+                    </div>
+                    <div class="form-group">
+                        <label>Size</label>
+                        <input type="text" id="gameSize" placeholder="100 MB">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Game Cover / Icon URL</label>
+                    <input type="url" id="gameIcon" placeholder="https://example.com/game-cover.jpg">
+                </div>
+
+                <div class="form-group">
+                    <label>About This Game</label>
+                    <textarea id="gameDescription" placeholder="Game description..." rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Features</label>
+                    <input type="text" id="gameFeatures" placeholder="Open World, Offline, Adventure">
+                    <small>Separate each feature with a comma.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Download URL *</label>
+                    <input type="url" id="gameDownloadUrl" placeholder="https://example.com/download" required>
+                </div>
+
+                <div class="form-group playstore-admin-group">
+                    <label>▶️ Google Play Store URL</label>
+                    <input type="url" id="gamePlayStoreUrl" placeholder="https://play.google.com/store/apps/details?id=...">
+                    <small>Optional. Leave empty if this game is not available on Google Play.</small>
+                </div>
+
+                <div class="screenshots-admin-box">
+                    <div class="screenshots-admin-title">📸 Game Screenshots</div>
+                    <p class="screenshots-admin-help">Add up to 4 screenshot image URLs.</p>
+                    <div class="form-group">
+                        <label>Screenshot 1</label>
+                        <input type="url" id="screenshot1" placeholder="https://example.com/screenshot1.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Screenshot 2</label>
+                        <input type="url" id="screenshot2" placeholder="https://example.com/screenshot2.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Screenshot 3</label>
+                        <input type="url" id="screenshot3" placeholder="https://example.com/screenshot3.jpg">
+                    </div>
+                    <div class="form-group">
+                        <label>Screenshot 4</label>
+                        <input type="url" id="screenshot4" placeholder="https://example.com/screenshot4.jpg">
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label>
+                        <input type="checkbox" id="gameFeatured"> Featured Game
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="action-btn primary">💾 Save Game</button>
+                    <button type="button" class="action-btn secondary" onclick="cancelForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="games-list-section">
+            <h3 class="section-title">📋 Manage Games</h3>
+            <div id="adminGamesList" class="admin-games-list"></div>
+        </div>
+    </div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,873 @@
+/* ============================================
+AKL GAMING HUB
+GAME DETAIL PAGE
+============================================ */
+
+#detailApp {
+min-height: 100vh;
+
+background:
+    radial-gradient(
+        circle at 50% -10%,
+        rgba(65,125,255,.25),
+        transparent 38%
+    ),
+    radial-gradient(
+        circle at 100% 40%,
+        rgba(115,70,255,.12),
+        transparent 35%
+    ),
+    #080b12;
+
+color: #fff;
+
+}
+
+/* ============================================
+HEADER
+============================================ */
+
+.detail-header {
+height: 62px;
+
+display: flex;
+align-items: center;
+justify-content: space-between;
+
+padding: 0 15px;
+
+position: sticky;
+top: 0;
+z-index: 100;
+
+background: rgba(8,11,18,.88);
+
+backdrop-filter: blur(18px);
+-webkit-backdrop-filter: blur(18px);
+
+border-bottom:
+    1px solid
+    rgba(255,255,255,.08);
+
+}
+
+.detail-title {
+font-size: 17px;
+font-weight: 800;
+}
+
+.detail-header-space {
+width: 55px;
+}
+
+.back-btn {
+border: none;
+
+background:
+    rgba(255,255,255,.08);
+
+color: #fff;
+
+padding: 9px 14px;
+
+border-radius: 12px;
+
+font-size: 14px;
+font-weight: 600;
+
+text-decoration: none;
+cursor: pointer;
+
+}
+
+/* ============================================
+CONTENT
+============================================ */
+
+.detail-content {
+max-width: 700px;
+
+margin: 0 auto;
+
+padding:
+    18px 15px 50px;
+
+}
+
+.game-detail-page {
+animation:
+detailPageIn .35s ease;
+}
+
+@keyframes detailPageIn {
+from {
+opacity: 0;
+transform: translateY(15px);
+}
+
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+}
+
+/* ============================================
+HERO
+============================================ */
+
+.detail-hero {
+width: 100%;
+
+border-radius: 24px;
+
+overflow: hidden;
+
+background:
+    linear-gradient(
+        145deg,
+        #151c2b,
+        #0d111a
+    );
+
+border:
+    1px solid
+    rgba(255,255,255,.08);
+
+box-shadow:
+    0 20px 55px
+    rgba(0,0,0,.45);
+
+}
+
+/* ============================================
+GAME COVER
+FULL SIZE / ORIGINAL STYLE
+============================================ */
+
+.detail-cover {
+width: 100%;
+
+min-height: 285px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+padding: 0;
+
+overflow: hidden;
+
+}
+
+.detail-cover-image {
+width: 100%;
+
+height: 320px;
+
+object-fit: cover;
+
+display: block;
+
+border-radius: 0;
+
+box-shadow: none;
+
+}
+
+.detail-cover-icon {
+width: 100%;
+
+height: 320px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+background:
+    linear-gradient(
+        145deg,
+        #151c2b,
+        #0d111a
+    );
+
+font-size: 100px;
+
+}
+
+/* ============================================
+TITLE
+============================================ */
+
+.detail-title-area {
+padding:
+20px 3px 12px;
+}
+
+.detail-game-name {
+margin:
+0 0 11px;
+
+font-size: 28px;
+
+line-height: 1.2;
+
+font-weight: 850;
+
+}
+
+.detail-platform {
+display: inline-flex;
+
+align-items: center;
+
+gap: 5px;
+
+padding:
+    7px 12px;
+
+border-radius: 10px;
+
+background:
+    rgba(45,130,255,.13);
+
+border:
+    1px solid
+    rgba(45,130,255,.3);
+
+color: #69adff;
+
+font-size: 12px;
+
+font-weight: 850;
+
+}
+
+/* ============================================
+INFO
+============================================ */
+
+.detail-info-grid {
+display: grid;
+
+grid-template-columns:
+    repeat(2, 1fr);
+
+gap: 12px;
+
+margin:
+    8px 0 24px;
+
+}
+
+.info-box {
+display: flex;
+
+flex-direction: column;
+
+gap: 4px;
+
+padding: 15px;
+
+border-radius: 16px;
+
+background:
+    rgba(255,255,255,.045);
+
+border:
+    1px solid
+    rgba(255,255,255,.075);
+
+}
+
+.info-icon {
+font-size: 19px;
+}
+
+.info-label {
+font-size: 11px;
+
+color: #858fa1;
+
+}
+
+.info-box strong {
+font-size: 14px;
+
+color: #f1f4f8;
+
+}
+
+/* ============================================
+SECTIONS
+============================================ */
+
+.detail-section {
+margin-top: 26px;
+}
+
+.detail-section-title {
+margin:
+0 0 13px;
+
+font-size: 19px;
+
+font-weight: 800;
+
+}
+
+/* ============================================
+DESCRIPTION
+============================================ */
+
+.description-box {
+padding: 17px;
+
+border-radius: 16px;
+
+background:
+    rgba(255,255,255,.045);
+
+border:
+    1px solid
+    rgba(255,255,255,.07);
+
+color: #cbd3df;
+
+font-size: 14px;
+
+line-height: 1.75;
+
+}
+
+/* ============================================
+FEATURES
+============================================ */
+
+.features-grid {
+display: grid;
+
+grid-template-columns:
+    repeat(2, 1fr);
+
+gap: 10px;
+
+}
+
+.feature-card {
+display: flex;
+
+align-items: center;
+
+gap: 9px;
+
+padding: 13px;
+
+border-radius: 14px;
+
+background:
+    rgba(255,255,255,.045);
+
+border:
+    1px solid
+    rgba(255,255,255,.07);
+
+color: #dce3ed;
+
+font-size: 13px;
+
+}
+
+.feature-check {
+flex:
+0 0 22px;
+
+width: 22px;
+height: 22px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+border-radius: 50%;
+
+background:
+    rgba(40,205,125,.14);
+
+color: #43dc98;
+
+font-weight: 900;
+
+}
+
+/* ============================================
+SCREENSHOTS
+============================================ */
+
+.screenshots-heading {
+display: flex;
+
+align-items: center;
+justify-content: space-between;
+
+}
+
+.screenshot-count {
+font-size: 11px;
+
+color: #7f899a;
+
+background:
+    rgba(255,255,255,.06);
+
+padding:
+    5px 9px;
+
+border-radius: 8px;
+
+}
+
+.screenshots-scroll {
+display: flex;
+
+gap: 13px;
+
+overflow-x: auto;
+
+padding:
+    2px 2px 10px;
+
+scroll-snap-type:
+    x mandatory;
+
+scrollbar-width: none;
+
+-webkit-overflow-scrolling: touch;
+
+}
+
+.screenshots-scroll::-webkit-scrollbar {
+display: none;
+}
+
+.screenshot-card {
+position: relative;
+
+flex:
+    0 0 82%;
+
+max-width: 360px;
+
+aspect-ratio: 16 / 9;
+
+border-radius: 17px;
+
+overflow: hidden;
+
+background: #111722;
+
+border:
+    1px solid
+    rgba(255,255,255,.08);
+
+scroll-snap-align: start;
+
+box-shadow:
+    0 10px 28px
+    rgba(0,0,0,.35);
+
+}
+
+.screenshot-card img {
+width: 100%;
+height: 100%;
+
+object-fit: cover;
+
+display: block;
+
+cursor: pointer;
+
+}
+
+.screenshot-number {
+position: absolute;
+
+right: 9px;
+bottom: 9px;
+
+min-width: 25px;
+height: 25px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+border-radius: 8px;
+
+background:
+    rgba(0,0,0,.65);
+
+backdrop-filter: blur(6px);
+
+font-size: 11px;
+
+font-weight: 800;
+
+}
+
+/* ============================================
+SCREENSHOT ZOOM / LIGHTBOX FIX (Added)
+============================================ */
+
+.screenshot-modal,
+.lightbox-container,
+.image-zoom-modal,
+.detail-screenshot img,
+#detailContent img[src*="screenshot"] {
+    max-width: 100% !important;
+    max-height: 85vh !important;
+    object-fit: contain !important;
+}
+
+/* ============================================
+DOWNLOAD
+============================================ */
+
+.download-area {
+margin-top: 32px;
+}
+
+.download-section {
+margin-top: 34px;
+
+padding: 18px;
+
+border-radius: 20px;
+
+background:
+    rgba(255,255,255,.045);
+
+border:
+    1px solid
+    rgba(255,255,255,.08);
+
+}
+
+.download-section-header {
+margin-bottom: 15px;
+}
+
+.download-section-header h2 {
+margin: 0 0 5px;
+
+font-size: 20px;
+
+}
+
+.download-section-header span {
+color: #7f899a;
+
+font-size: 12px;
+
+}
+
+.download-section-buttons {
+display: flex;
+
+flex-direction: column;
+
+gap: 10px;
+
+}
+
+.download-btn {
+width: 100%;
+
+border: none;
+
+border-radius: 16px;
+
+padding: 16px;
+
+background:
+    linear-gradient(
+        135deg,
+        #2388ff,
+        #694cff
+    );
+
+color: #fff;
+
+font-size: 16px;
+
+font-weight: 850;
+
+box-shadow:
+    0 12px 32px
+    rgba(50,105,255,.3);
+
+cursor: pointer;
+
+}
+
+.download-btn:active {
+transform:
+scale(.98);
+}
+
+/* ============================================
+GOOGLE PLAY
+============================================ */
+
+.playstore-btn {
+width: 100%;
+
+min-height: 60px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+gap: 12px;
+
+border:
+    1px solid
+    rgba(255,255,255,.12);
+
+border-radius: 15px;
+
+background: #171a20;
+
+color: #fff;
+
+cursor: pointer;
+
+}
+
+.playstore-icon {
+width: 32px;
+height: 32px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+border-radius: 9px;
+
+background:
+    rgba(255,255,255,.1);
+
+font-size: 16px;
+
+}
+
+.playstore-text {
+display: flex;
+
+flex-direction: column;
+
+align-items: flex-start;
+
+font-size: 15px;
+
+font-weight: 800;
+
+}
+
+.playstore-text small {
+color: #7f899a;
+
+font-size: 10px;
+
+font-weight: 500;
+
+}
+
+.playstore-btn:active {
+transform:
+scale(.98);
+}
+
+.download-note {
+margin:
+13px 0 0;
+
+text-align: center;
+
+color: #687385;
+
+font-size: 11px;
+
+}
+
+.download-unavailable {
+width: 100%;
+
+padding: 15px;
+
+text-align: center;
+
+border-radius: 14px;
+
+background:
+    rgba(255,180,0,.08);
+
+border:
+    1px solid
+    rgba(255,180,0,.15);
+
+color: #d5b86c;
+
+font-size: 13px;
+
+}
+
+/* ============================================
+ERROR
+============================================ */
+
+.detail-error {
+min-height: 65vh;
+
+display: flex;
+
+flex-direction: column;
+
+align-items: center;
+justify-content: center;
+
+text-align: center;
+
+padding: 30px;
+
+}
+
+.detail-error-icon {
+font-size: 62px;
+
+margin-bottom: 15px;
+
+}
+
+.detail-error h2 {
+margin: 0 0 8px;
+}
+
+.detail-error p {
+color: #8993a4;
+
+line-height: 1.6;
+
+}
+
+.error-back-btn {
+max-width: 220px;
+
+margin-top: 12px;
+
+}
+
+/* ============================================
+LOADING
+============================================ */
+
+.detail-loading {
+min-height: 60vh;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+flex-direction: column;
+
+gap: 15px;
+
+color: #8f99aa;
+
+}
+
+.detail-loading-icon {
+font-size: 40px;
+}
+
+/* ============================================
+MOBILE
+============================================ */
+
+@media (max-width: 420px) {
+
+.detail-game-name {
+    font-size: 24px;
+}
+
+.detail-cover {
+    min-height: 270px;
+
+    padding: 0;
+}
+
+.detail-cover-image {
+    width: 100%;
+
+    height: 270px;
+
+    object-fit: cover;
+}
+
+.detail-cover-icon {
+    width: 100%;
+
+    height: 270px;
+
+    font-size: 90px;
+}
+
+.features-grid {
+    grid-template-columns: 1fr;
+}
+
+.screenshot-card {
+    flex-basis: 84%;
+}
+
+}
+
+/* ============================================
+LARGE MOBILE / TABLET
+============================================ */
+
+@media (min-width: 421px) and (max-width: 700px) {
+
+.detail-cover-image {
+    height: 300px;
+}
+
+.detail-cover-icon {
+    height: 300px;
+}
+
+}
+
+/* ============================================
+DESKTOP
+============================================ */
+
+@media (min-width: 701px) {
+
+.detail-cover-image {
+    height: 360px;
+}
+
+.detail-cover-icon {
+    height: 360px;
+}
+
+}

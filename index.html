@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AKL Gaming HUB</title>
+<meta name="b730f0f9a558aa87046077a479ff015c574f3d4f" content="b730f0f9a558aa87046077a479ff015c574f3d4f" />
+<link rel="stylesheet" href="style.css">
+<style>
+    .games-grid { gap: 12px !important; }
+    .game-card { padding: 10px !important; border-radius: 14px !important; overflow: hidden; }
+    .game-card-image, .game-card img { width: 80px !important; height: 80px !important; min-width: 80px !important; min-height: 80px !important; max-width: 80px !important; max-height: 80px !important; object-fit: cover !important; border-radius: 15px !important; display: block; margin: 0 auto 8px !important; }
+    .game-card-name { width: 100%; font-size: 13px !important; line-height: 17px !important; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .game-card-platform { font-size: 10px !important; margin-top: 3px; text-align: center; }
+    .game-card-size { font-size: 10px !important; margin-top: 2px; text-align: center; }
+    .featured-card img, .featured-image, .featured-card-image { width: 90px !important; height: 90px !important; min-width: 90px !important; min-height: 90px !important; max-width: 90px !important; max-height: 90px !important; object-fit: cover !important; border-radius: 16px !important; }
+    @media (max-width: 420px) {
+        .games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+        .game-card { padding: 9px !important; }
+        .game-card-image, .game-card img { width: 75px !important; height: 75px !important; min-width: 75px !important; min-height: 75px !important; max-width: 75px !important; max-height: 75px !important; border-radius: 14px !important; }
+        .game-card-name { font-size: 12px !important; line-height: 16px !important; }
+    }
+    @media (max-width: 360px) {
+        .game-card-image, .game-card img { width: 70px !important; height: 70px !important; min-width: 70px !important; min-height: 70px !important; max-width: 70px !important; max-height: 70px !important; }
+    }
+</style>
+</head>
+<body>
+<div id="splashScreen">
+    <div class="splash-content">
+        <div class="splash-icon" style="width:150px; height:150px; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjdlp1fH2LNUM_d5_6HInbfrVXdgNKSgB_93NNHAhGdxyruSsyo6qp-Ly9-c6jV6OaKJEFStGsZZSnstu14zPl-qz5QdTAJNLzxieVPDocLnfbnnrIih1rQNU0XX3cuxXhC1YlSPBk4RLuNLePJaTP3kE2AFnXcE4nwYhPdP8aIwCMPGDmgFcBnR8kGmhU/s1280/44697.png" alt="AKL Gaming HUB Logo" style="width:100%; height:100%; object-fit:contain; display:block;">
+        </div>
+        <h1 class="splash-title">AKL Gaming HUB</h1>
+        <div class="splash-loader"></div>
+    </div>
+</div>
+
+<div id="mainApp" style="display:none;">
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon" style="width:42px; height:42px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjdlp1fH2LNUM_d5_6HInbfrVXdgNKSgB_93NNHAhGdxyruSsyo6qp-Ly9-c6jV6OaKJEFStGsZZSnstu14zPl-qz5QdTAJNLzxieVPDocLnfbnnrIih1rQNU0XX3cuxXhC1YlSPBk4RLuNLePJaTP3kE2AFnXcE4nwYhPdP8aIwCMPGDmgFcBnR8kGmhU/s1280/44697.png" alt="AKL Gaming HUB" style="width:100%; height:100%; object-fit:contain; display:block;">
+                </span>
+                <span class="logo-text">AKL Gaming HUB</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search games..." class="search-input">
+        </div>
+    </div>
+
+    <main class="main-content">
+        <section class="featured-section">
+            <h2 class="section-title">⭐ Featured Games</h2>
+            <div class="featured-scroll" id="featuredGames"></div>
+        </section>
+
+        <section class="categories-section" id="categories">
+            <h2 class="section-title">📂 Categories</h2>
+            <div class="categories-scroll" id="categoriesList"></div>
+        </section>
+
+        <section class="games-section">
+            <h2 class="section-title">🕹️ Latest Games</h2>
+            <div class="games-grid" id="gamesList"></div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <button type="button" class="nav-item active" data-page="home" onclick="goHomePage()">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button type="button" class="nav-item" data-page="categories" onclick="goCategoriesPage()">
+            <span class="nav-icon">📂</span>
+            <span class="nav-label">Categories</span>
+        </button>
+    </nav>
+</div>
+
+<!-- app.js က JSON သုံးတော့ Supabase CDN မလိုတော့ဘူး -->
+<script src="app.js"></script>
+
+<!-- Ad Scripts (ထားချင်ရင် ထားပါ) -->
+<script type="text/javascript" src="https://pl30766674.effectivecpmnetwork.com/4f/4b/aa/4f4baa5c9aff9d34ad71c4e39be56bd1.js"></script>
+<script src="https://pl30771583.effectivecpmnetwork.com/72/aa/28/72aa28effe1a59f21e9a4d4f0d42b843.js"></script>
+</body>
+</html>

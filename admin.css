@@ -1,0 +1,728 @@
+/* =========================================================
+   AKL GAMING HUB
+   ADMIN PANEL + GAME DETAIL PAGE
+   COMPLETE CSS
+========================================================= */
+
+
+/* =========================================================
+   RESET & BASE
+========================================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    background: #0a0a0a;
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   ADMIN APP
+========================================================= */
+
+#adminApp {
+    display: none;
+    background: #0a0a0a;
+    min-height: 100vh;
+    padding-bottom: 30px;
+}
+
+#adminApp.show {
+    display: block;
+}
+
+
+/* =========================================================
+   ADMIN HEADER
+========================================================= */
+
+.admin-header {
+    background: #0f0f0f;
+    padding: 15px 20px;
+
+    border-bottom:
+        1px solid #1a1a1a;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 100;
+}
+
+.admin-header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+}
+
+.admin-title {
+    color: #e0e0e0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.logout-btn {
+    background: #ff4444;
+    color: #fff;
+
+    border: none;
+
+    padding: 7px 16px;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.logout-btn:active {
+    transform: scale(.95);
+}
+
+
+/* =========================================================
+   LOGIN SCREEN
+========================================================= */
+
+.login-screen {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 80vh;
+
+    padding: 20px;
+}
+
+.login-box {
+    background: #141414;
+
+    border-radius: 20px;
+
+    padding: 40px 30px;
+
+    max-width: 400px;
+    width: 100%;
+
+    border:
+        1px solid #1a1a1a;
+
+    text-align: center;
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.35);
+}
+
+.login-icon {
+    font-size: 60px;
+    margin-bottom: 15px;
+}
+
+.login-title {
+    color: #e0e0e0;
+
+    font-size: 24px;
+    font-weight: 700;
+
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: #666;
+
+    font-size: 14px;
+
+    margin-bottom: 25px;
+}
+
+.login-hint {
+    color: #555;
+
+    font-size: 13px;
+
+    margin-top: 15px;
+
+    font-style: italic;
+}
+
+.login-btn {
+    width: 100%;
+
+    padding: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #1a8cff,
+            #0066cc
+        );
+
+    color: #fff;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    transition:
+        transform .2s,
+        opacity .2s;
+}
+
+.login-btn:active {
+    transform: scale(.97);
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+.dashboard-screen {
+    padding: 20px;
+
+    max-width: 800px;
+
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.stats-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: #141414;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    border:
+        1px solid #1a1a1a;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+}
+
+.stat-icon {
+    font-size: 35px;
+
+    width: 50px;
+    height: 50px;
+
+    background: #1a1a1a;
+
+    border-radius: 12px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+.stat-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-number {
+    color: #e0e0e0;
+
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.stat-label {
+    color: #666;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   ADMIN ACTIONS
+========================================================= */
+
+.admin-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-bottom: 25px;
+
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    padding: 12px 24px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    transition:
+        transform .2s,
+        opacity .2s;
+
+    flex: 1;
+
+    min-width: 120px;
+}
+
+.action-btn:active {
+    transform: scale(.97);
+}
+
+.action-btn.primary {
+    background:
+        linear-gradient(
+            135deg,
+            #1a8cff,
+            #0066cc
+        );
+
+    color: #fff;
+}
+
+.action-btn.secondary {
+    background: #1a1a1a;
+
+    color: #e0e0e0;
+
+    border:
+        1px solid #2a2a2a;
+}
+
+.action-btn.danger {
+    background: #ff4444;
+    color: #fff;
+}
+
+
+/* =========================================================
+   GAME FORM
+========================================================= */
+
+.game-form {
+    background: #141414;
+
+    border-radius: 15px;
+
+    padding: 25px;
+
+    border:
+        1px solid #1a1a1a;
+
+    margin-bottom: 25px;
+}
+
+.form-title {
+    color: #e0e0e0;
+
+    font-size: 20px;
+    font-weight: 600;
+
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+
+    color: #aaa;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+
+    padding: 12px 15px;
+
+    background: #1a1a1a;
+
+    border:
+        1px solid #2a2a2a;
+
+    border-radius: 10px;
+
+    color: #e0e0e0;
+
+    font-size: 15px;
+
+    outline: none;
+
+    transition:
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #1a8cff;
+
+    box-shadow:
+        0 0 0 3px rgba(26,140,255,.08);
+}
+
+.form-group textarea {
+    resize: vertical;
+
+    min-height: 80px;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #555;
+}
+
+.form-group select option {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.form-row {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 15px;
+}
+
+
+/* =========================================================
+   IMAGE PREVIEW
+========================================================= */
+
+.image-preview {
+    width: 100%;
+
+    min-height: 100px;
+
+    margin-top: 10px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #0f0f0f;
+
+    border:
+        1px dashed #333;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    color: #555;
+
+    font-size: 13px;
+}
+
+.image-preview img {
+    width: 100%;
+
+    max-height: 220px;
+
+    object-fit: contain;
+
+    display: block;
+}
+
+
+/* =========================================================
+   SCREENSHOT INPUT AREA
+========================================================= */
+
+.screenshot-input-group {
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 10px;
+}
+
+.screenshot-input-group input {
+    flex: 1;
+}
+
+.add-screenshot-btn {
+    width: 45px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: #1a8cff;
+
+    color: #fff;
+
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.screenshot-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.screenshot-item {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    background: #101010;
+
+    border:
+        1px solid #222;
+
+    padding: 8px;
+
+    border-radius: 10px;
+}
+
+.screenshot-item img {
+    width: 70px;
+    height: 45px;
+
+    object-fit: cover;
+
+    border-radius: 6px;
+}
+
+.remove-screenshot-btn {
+    margin-left: auto;
+
+    border: none;
+
+    background: #ff4444;
+
+    color: #fff;
+
+    width: 30px;
+    height: 30px;
+
+    border-radius: 7px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+.checkbox-group {
+    display: flex;
+
+    align-items: center;
+
+    margin: 10px 0;
+}
+
+.checkbox-group label {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    cursor: pointer;
+
+    color: #e0e0e0;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+
+    accent-color: #1a8cff;
+
+    cursor: pointer;
+}
+
+
+/* =========================================================
+   FORM ACTIONS
+========================================================= */
+
+.form-actions {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.form-actions .action-btn {
+    flex: 1;
+}
+
+
+/* =========================================================
+   ADMIN GAMES LIST (GRID CARDS WITH SMALLER CLEAN IMAGES)
+========================================================= */
+
+.admin-games-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+}
+
+.admin-game-item {
+    background: #141414;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.admin-game-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.admin-game-icon {
+    font-size: 24px;
+    width: 100%;
+    height: 110px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.admin-game-icon img,
+.admin-game-icon-image {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.admin-game-details {
+    min-width: 0;
+}
+
+.admin-game-name {
+    color: #e0e0e0;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.section-title {
+    color: #e0e0e0;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.screenshots-admin-box {
+    background: #101010;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.screenshots-admin-title {
+    color: #e0e0e0;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.screenshots-admin-help {
+    color: #666;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+small {
+    color: #666;
+    font-size: 12px;
+    display: block;
+    margin-top: 4px;
+}
