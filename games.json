@@ -2146,6 +2146,25 @@
       "rating": "5",
       "total_ratings": "0",
       "obb_link": ""
+    },
+    {
+      "id": "117",
+      "name": "Bus Simulator Indonesia",
+      "platform": "android",
+      "type": "MOD",
+      "version": "4.2",
+      "size": "450 MB",
+      "icon": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj708WawcMOzQO89FwBcJhwC-T57iMZE-gtjFm_zQwAIxEJWO8jD3Nrnl8fmo2vrnBWtYAcOgSvJ-5hBNmeNrS3DoFKBleqiFZeP9m4KV0K2jYY1MWnNiXpTDQdJvWSemq814KWTQHNF-VQNQR1PKNFM3HJ7McVnLkhqDP6B3jfkRgQ1ZgkHWZ99wevDDw/s1024/44827.png",
+      "description": "အင်ဒိုနီးရှားနိုင်ငံရဲ့ နာမည်ကြီး ဘတ်စ်ကားမောင်းနှင်မှုကို လက်တွေ့ဆန်ဆန် ခံစားနိုင်မယ့် Simulation ဂိမ်းကောင်းတစ်ခု ဖြစ်ပါတယ်။ ကိုယ်ပိုင်ကားဒီဇိုင်းဆင်ခြင်း၊ ခရီးသည်တင်ဆောင်ခြင်းနဲ့ မြို့အမျိုးမျိုးကို ခရီးနှင်ရမယ့် ပုံစံမျိုး ဖြစ်ပါတယ်။",
+      "features": "[\"Simulation\",\"Driving\",\"Offline\",\"Free Shopping\"]",
+      "downloadUrl": "https://example.com/bussimulator-mod.apk",
+      "playStoreUrl": "",
+      "screenshots": "[\"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCQiVhiSKvcO8ZDQfTohqMfZvlKh5joVa-L2pC1l-5csWx_tVt4Yo2hMtYPNdCDQAZkdWTXlpaVx96_a68ZF6gweA1w_HS8nwsRHpVgn_fBgeM6gC8ma7Ucmir3aZcIdxIuPcGNE-2VHpuTd-bIZJ7p0SE8fgJdmqzQma7wJHIn4-fyHMo22bXOE8QOpA/s1364/44824.png\"]",
+      "featured": "true",
+      "updatedAt": "1786359258014",
+      "rating": "5",
+      "total_ratings": "1",
+      "obb_link": ""
     }
   ]
 }
