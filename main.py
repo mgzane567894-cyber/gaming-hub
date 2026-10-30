@@ -11,8 +11,7 @@ logging.basicConfig(
 )
 
 # ---------------- CONFIGURATION ----------------
-# Render ၏ Environment Variables မှ Token ကို ယူမည် (မရှိပါက ပေးထားသော Token ကို သုံးမည်)
-BOT_TOKEN = os.environ.get("MOVIE_BOT_TOKEN", "9184533069:AAEP0vALVaMWRP_j_8zfa1_5vhzptyIOg2c")
+BOT_TOKEN = os.environ.get("MOVIE_BOT_TOKEN")
 ADSTERRA_DIRECT_LINK = "https://araplhn.org/4/a5cf2ac42fc3b28070b87afb456402e7"
 ADMIN_ID = 7122952141
 
@@ -31,9 +30,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
 
-    movie_code = args[0]
-    
-    # ဤနေရာတွင် Adsterra Link ဖြင့် ဖွင့်ခိုင်းပြီးမှ ရုပ်ရှင်ပို့မည့် ပုံစံကို ဖန်တီးနိုင်သည်
     message_text = (
         f"🎬 **ရုပ်ရှင်ဖိုင် ရယူရန် အဆင်သင့်ဖြစ်ပါပြီ!**\n\n"
         "⚡ **အရေးကြီးသတိပေးချက်:**\n"
@@ -48,7 +44,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(message_text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="Markdown")
 
 async def send_movie_with_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, video_file_id: str, movie_name: str):
-    """ဗီဒီယိုကို ပို့မည်၊ ပြီးလျှင် ၅ မိနစ် (၃၀၀ စက္ကန့်) အကြာတွင် အလိုအလျောက် ဖျက်မည်"""
     chat_id = update.effective_chat.id
     
     caption_text = (
@@ -56,7 +51,6 @@ async def send_movie_with_timer(update: Update, context: ContextTypes.DEFAULT_TY
         "⏳ **ဒီဗီဒီယိုဟာ (၅) မိနစ်အတွင်း အလိုအလျောက် ပျက်သွားမှာဖြစ်လို့ အမြန်ဆုံး Forward လုပ်ပြီး သိမ်းထားပါ!**"
     )
     
-    # ဗီဒီယို ပို့ခြင်း
     sent_message = await context.bot.send_video(
         chat_id=chat_id,
         video=video_file_id,
@@ -64,11 +58,9 @@ async def send_movie_with_timer(update: Update, context: ContextTypes.DEFAULT_TY
         parse_mode="Markdown"
     )
     
-    # မိနစ် ၅ မိနစ် (300 စက္ကန့်) စောင့်ရန် background task စတင်ခြင်း
     context.application.create_task(delete_message_after_delay(context, chat_id, sent_message.message_id, 300))
 
 async def delete_message_after_delay(context: ContextTypes.DEFAULT_TYPE, chat_id: int, message_id: int, delay_seconds: int):
-    """သတ်မှတ်ထားသော စက္ကန့်ပြည့်ပါက မက်ဆေ့ဂျ်ကို ဖျက်ပေးမည့် လုပ်ဆောင်ချက်"""
     await asyncio.sleep(delay_seconds)
     try:
         await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
@@ -94,6 +86,10 @@ async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE)
         )
 
 def main():
+    if not BOT_TOKEN:
+        print("Error: MOVIE_BOT_TOKEN environment variable is missing!")
+        return
+
     application = Application.builder().token(BOT_TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
