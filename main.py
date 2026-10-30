@@ -50,18 +50,32 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
 
-    payload = args[0]
+    # Deep Link ကနေ ဝင်လာတဲ့ ဇာတ်ကားနာမည် (ဥပမာ - Solo_Leveling သို့မဟုတ် Solo Leveling)
+    query = args[0].replace("_", " ")
     
     try:
-        response = supabase.table("movies").select("*").eq("title", payload).execute()
+        response = supabase.table("movies").select("*").ilike("title", f"%{query}%").execute()
         movies_data = response.data
         
         if not movies_data:
-            await update.message.reply_text("❌ တောင်းဆိုထားသော ရုပ်ရှင်ကို မတွေ့ရှိရသေးပါ။")
+            await update.message.reply_text(f"❌ '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကားများကို မတွေ့ရှိရသေးပါ။")
             return
             
+        # အပိုင်းတွေ အကုန်ပေါ်လာအောင် Inline Buttons တွေ တည်ဆောက်ခြင်း
+        keyboard = []
         for movie in movies_data:
-            await send_movie_with_timer(update, context, movie['file_id'], f"{movie['title']} - {movie['episode']}")
+            # ဇာတ်ကား ID ကို Callback အနေနဲ့ သို့မဟုတ် Command အနေနဲ့ ချိတ်ပေးနိုင်ပါတယ်
+            button_text = f"🎬 {movie['title']} - {movie['episode']}"
+            callback_data = f"get_{movie['id']}"
+            keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
+            
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await update.message.reply_text(
+            f"🍿 **'{query}' ဇာတ်ကားအတွက် ရရှိနိုင်သော အပိုင်းများ:**\nအောက်ပါခလုတ်များကို နှိပ်ပြီး ရယူနိုင်ပါသည် -",
+            reply_markup=reply_markup,
+            parse_mode="Markdown"
+        )
             
     except Exception as e:
         print(f"Database error: {e}")
@@ -82,13 +96,40 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             await update.message.reply_text(f"🔍 '{query}' နှင့် ကိုက်ညီသော ရုပ်ရှင်/အန်နီမေးရှင်း မတွေ့ရှိပါ။")
             return
             
-        text = f"🍿 **'{query}' အတွက် ရှာတွေ့သော ရုပ်ရှင်များ:**\n\n"
+        keyboard = []
         for m in movies:
-            text += f"• 🎬 {m['title']} ({m['episode']})\n  ဖိုင်ရယူရန် - `/get_{m['id']}` ဟု ရိုက်ပါ သို့မဟုတ် အောက်ပါလင့်ကို နှိပ်ပါ။\n\n"
+            button_text = f"🎬 {m['title']} ({m['episode']})"
+            callback_data = f"get_{m['id']}"
+            keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
             
-        await update.message.reply_text(text, parse_mode="Markdown")
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await update.message.reply_text(
+            f"🍿 **'{query}' အတွက် ရှာတွေ့သော ရုပ်ရှင်များ:**",
+            reply_markup=reply_markup,
+            parse_mode="Markdown"
+        )
     except Exception as e:
         print(f"Search error: {e}")
+
+# Inline Button နှိပ်လိုက်တဲ့အခါ ဗီဒီယို ပို့ပေးမယ့် Handler
+async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+    
+    data = query.data
+    if data.startswith("get_"):
+        movie_id = int(data.split("_")[1])
+        
+        try:
+            response = supabase.table("movies").select("*").eq("id", movie_id).execute()
+            if response.data:
+                movie = response.data[0]
+                await send_movie_with_timer(update, context, movie['file_id'], f"{movie['title']} - {movie['episode']}")
+            else:
+                await query.message.reply_text("❌ ဒီဖိုင်ကို မတွေ့တော့ပါ။")
+        except Exception as e:
+            print(f"Callback error: {e}")
 
 async def send_movie_with_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, video_file_id: str, movie_name: str):
     chat_id = update.effective_chat.id
@@ -157,6 +198,10 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("search", search_movie))
     application.add_handler(MessageHandler(filters.VIDEO | filters.Document.ALL, handle_admin_video))
+    
+    # Callback Query Handler (ခလုတ်နှိပ်တာကို ဖမ်းရန်)
+    from telegram.ext import CallbackQueryHandler
+    application.add_handler(CallbackQueryHandler(button_callback))
 
     # Flask ကို Background Thread နဲ့ စတင်ခြင်း
     flask_thread = threading.Thread(target=run_flask)
