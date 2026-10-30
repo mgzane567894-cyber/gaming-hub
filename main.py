@@ -1,6 +1,8 @@
 import logging
 import os
 import asyncio
+import threading
+from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 from supabase import create_client, Client
@@ -22,6 +24,17 @@ ADMIN_ID = 7122952141
 # Supabase Client ချိတ်ဆက်ခြင်း
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# ---------------- FLASK SERVER (UptimeRobot အတွက်) ----------------
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return "Movie Bot is running and active!", 200
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
 # ---------------- HANDLERS ----------------
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -32,16 +45,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         welcome_text = (
             f"🎬 **မင်္ဂလာပါ {user.first_name}!**\n\n"
             "🍿 **Movie Sharing Hub Bot မှ ကြိုဆိုပါတယ်။**\n"
-            "ရုပ်ရှင်နှင့် ဇာတ်ကားများကို ရှာဖွေလိုပါက - `/search ရုပ်ရှင်နာမည် အပိုင်း` ဟု ရိုက်ရှာပါ။"
+            "ရုပ်ရှင်နှင့် ဇာတ်ကားများကို ရှာဖွေလိုပါက - `/search ရုပ်ရှင်နာမည်` ဟု ရိုက်ရှာပါ။"
         )
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
 
-    # ဥပမာ - payload က 'Naruto_Ep1' ပုံစံ လာမယ်ဆိုရင် ခွဲထုတ်လို့ရပါတယ်
     payload = args[0]
     
-    # Supabase ထဲကနေ Data လှမ်းယူခြင်း (title သို့မဟုတ် id ဖြင့် ရှာရန်)
-    # ဤနေရာတွင် ဇာတ်ကားအချက်အလက်ကို Database မှ လှမ်းထုတ်ပါမည်
     try:
         response = supabase.table("movies").select("*").eq("title", payload).execute()
         movies_data = response.data
@@ -50,7 +60,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text("❌ တောင်းဆိုထားသော ရုပ်ရှင်ကို မတွေ့ရှိရသေးပါ။")
             return
             
-        # တွေ့ရှိပါက ပထမဆုံး တွေ့တဲ့ဖိုင်ကို ပို့ပေးမယ် (သို့မဟုတ် အပိုင်းအလိုက် ခွဲပြနိုင်သည်)
         for movie in movies_data:
             await send_movie_with_timer(update, context, movie['file_id'], f"{movie['title']} - {movie['episode']}")
             
@@ -60,13 +69,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
-        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုisသော ရုပ်ရှင်နာမည် ထည့်ပါ (ဥပမာ - `/search Naruto`)")
+        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ရုပ်ရှင်နာမည် ထည့်ပါ (ဥပမာ - `/search Solo Leveling`)")
         return
         
     query = " ".join(context.args)
     
     try:
-        # Supabase တွင် နာမည်တူ သို့မဟုတ် ပါဝင်သော ဇာတ်ကားများကို ရှာဖွေခြင်း
         response = supabase.table("movies").select("*").ilike("title", f"%{query}%").execute()
         movies = response.data
         
@@ -76,7 +84,7 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             
         text = f"🍿 **'{query}' အတွက် ရှာတွေ့သော ရုပ်ရှင်များ:**\n\n"
         for m in movies:
-            text += f"• 🎬 {m['title']} (အပိုင်း - {m['episode']})\n  ဖိုင်ရယူရန် - `/get_{m['id']}` ဟု ရိုက်ပါ သို့မဟုတ် အောက်ပါလင့်ကို နှိပ်ပါ။\n\n"
+            text += f"• 🎬 {m['title']} ({m['episode']})\n  ဖိုင်ရယူရန် - `/get_{m['id']}` ဟု ရိုက်ပါ သို့မဟုတ် အောက်ပါလင့်ကို နှိပ်ပါ။\n\n"
             
         await update.message.reply_text(text, parse_mode="Markdown")
     except Exception as e:
@@ -120,22 +128,19 @@ async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if update.message.video or update.message.document:
         file_id = update.message.video.file_id if update.message.video else update.message.document.file_id
         
-        # Caption ထဲမှာ နာမည်နဲ့ အပိုင်း ပါလာရင် အလိုအလျောက် ခွဲထုတ်သိမ်းဆည်းရန်
-        # ဥပမာ ပုံစံ - Naruto | Episode 1
         caption = update.message.caption or "Unknown Title | Ep 1"
         parts = caption.split("|")
         title = parts[0].strip() if len(parts) > 0 else "Movie"
         episode = parts[1].strip() if len(parts) > 1 else "Ep 1"
         
         try:
-            # Supabase ထဲသို့ Data သွင်းခြင်း
             data = {"title": title, "episode": episode, "file_id": file_id}
             supabase.table("movies").insert(data).execute()
             
             await update.message.reply_text(
                 f"✅ **Database သို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!**\n\n"
                 f"🎬 နာမည်: `{title}`\n"
-                f"ច အပိုင်း: `{episode}`\n"
+                f"📌 အပိုင်း: `{episode}`\n"
                 f"📁 File ID: `{file_id}`",
                 parse_mode="Markdown"
             )
@@ -153,7 +158,14 @@ def main():
     application.add_handler(CommandHandler("search", search_movie))
     application.add_handler(MessageHandler(filters.VIDEO | filters.Document.ALL, handle_admin_video))
 
-    print("Movie Bot with Supabase Persistence is running...")
+    # Flask ကို Background Thread နဲ့ စတင်ခြင်း
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.daemon = True
+    flask_thread.start()
+
+    print("Movie Bot with Supabase Persistence and Flask is running...")
+    
+    # Telegram Bot Polling စတင်ခြင်း
     application.run_polling()
 
 if __name__ == '__main__':
