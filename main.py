@@ -4,7 +4,7 @@ import asyncio
 import threading
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters, CallbackQueryHandler
 from supabase import create_client, Client
 
 # Logging သတ်မှတ်ခြင်း
@@ -50,7 +50,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
 
-    # Deep Link ကနေ ဝင်လာတဲ့ ဇာတ်ကားနာမည် (ဥပမာ - Solo_Leveling သို့မဟုတ် Solo Leveling)
     query = args[0].replace("_", " ")
     
     try:
@@ -61,21 +60,30 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f"❌ '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကားများကို မတွေ့ရှိရသေးပါ။")
             return
             
-        # အပိုင်းတွေ အကုန်ပေါ်လာအောင် Inline Buttons တွေ တည်ဆောက်ခြင်း
         keyboard = []
         for movie in movies_data:
-            # ဇာတ်ကား ID ကို Callback အနေနဲ့ သို့မဟုတ် Command အနေနဲ့ ချိတ်ပေးနိုင်ပါတယ်
             button_text = f"🎬 {movie['title']} - {movie['episode']}"
             callback_data = f"get_{movie['id']}"
             keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
             
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await update.message.reply_text(
-            f"🍿 **'{query}' ဇာတ်ကားအတွက် ရရှိနိုင်သော အပိုင်းများ:**\nအောက်ပါခလုတ်များကို နှိပ်ပြီး ရယူနိုင်ပါသည် -",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
+        # ဇာတ်ကားစာရင်း မပြခင် အရင်ဆုံး Adsterra Link ဖွင့်ခိုင်းမယ့် Button နဲ့ ပုံစံပြောင်းပါမယ်
+        context.user_data['unlocked'] = False
+        
+        intro_text = (
+            f"🔥 **Hey {user.first_name}!**\n\n"
+            f"🍿 **'{query}' ဇာတ်ကားကို ရယူရန် အဆင့် (၂) ဆင့် လုပ်ဆောင်ပေးပါ:**\n\n"
+            "၁။ အောက်ပါ **'🔓 Unlock Download Link (Ad)'** ကို တစ်ချက်နှိပ်ပြီး ကြော်ငြာကြည့်ပေးပါ။\n"
+            "၂။ ပြီးလျှင် **'📥 အပိုင်းများ ရယူရန်'** ကို နှိပ်ပါ!"
         )
+        
+        intro_keyboard = [
+            [InlineKeyboardButton("🔓 Unlock Download Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
+            [InlineKeyboardButton("📥 အပိုင်းများ ရယူရန်", callback_data=f"show_episodes_{query}")]
+        ]
+        
+        await update.message.reply_text(intro_text, reply_markup=InlineKeyboardMarkup(intro_keyboard), parse_mode="Markdown")
             
     except Exception as e:
         print(f"Database error: {e}")
@@ -96,29 +104,66 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
             await update.message.reply_text(f"🔍 '{query}' နှင့် ကိုက်ညီသော ရုပ်ရှင်/အန်နီမေးရှင်း မတွေ့ရှိပါ။")
             return
             
-        keyboard = []
-        for m in movies:
-            button_text = f"🎬 {m['title']} ({m['episode']})"
-            callback_data = f"get_{m['id']}"
-            keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
-            
-        reply_markup = InlineKeyboardMarkup(keyboard)
+        context.user_data['unlocked'] = False
         
-        await update.message.reply_text(
-            f"🍿 **'{query}' အတွက် ရှာတွေ့သော ရုပ်ရှင်များ:**",
-            reply_markup=reply_markup,
-            parse_mode="Markdown"
+        intro_text = (
+            f"🍿 **'{query}' အတွက် ရှာတွေ့သော ဇာတ်ကားများကို ရယူရန်:**\n\n"
+            "၁။ အောက်ပါ **'🔓 Unlock Download Link (Ad)'** ကို အရင် နှိပ်ပါ။\n"
+            "၂။ ပြီးလျှင် **'📥 စာရင်းပြရန်'** ကို နှိပ်ပါ။"
         )
+        
+        intro_keyboard = [
+            [InlineKeyboardButton("🔓 Unlock Download Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
+            [InlineKeyboardButton("📥 ဇာတ်ကားစာရင်း ပြရန်", callback_data=f"show_episodes_{query}")]
+        ]
+        
+        await update.message.reply_text(intro_text, reply_markup=InlineKeyboardMarkup(intro_keyboard), parse_mode="Markdown")
     except Exception as e:
         print(f"Search error: {e}")
 
-# Inline Button နှိပ်လိုက်တဲ့အခါ ဗီဒီယို ပို့ပေးမယ့် Handler
+# Inline Button နှိပ်လိုက်တဲ့အခါ
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
-    await query.answer()
-    
     data = query.data
-    if data.startswith("get_"):
+    
+    # 1. အပိုင်းစာရင်း မပြခင် Unlock စစ်ဆေးခြင်း
+    if data.startswith("show_episodes_"):
+        search_query = data.replace("show_episodes_", "")
+        
+        if not context.user_data.get('unlocked', False):
+            context.user_data['unlocked'] = True
+            await query.answer(
+                text="⚠️ အရင်ဆုံး အပေါ်က '🔓 Unlock Download Link (Ad)' ကို နှိပ်ပြီး ကြော်ငြာကြည့်ပေးပါ သားရီး!",
+                show_alert=True
+            )
+            return
+            
+        await query.answer()
+        try:
+            response = supabase.table("movies").select("*").ilike("title", f"%{search_query}%").execute()
+            movies_data = response.data
+            
+            if not movies_data:
+                await query.message.reply_text(f"❌ အပိုင်းများကို မတွေ့ရှိရတော့ပါ။")
+                return
+                
+            keyboard = []
+            for movie in movies_data:
+                button_text = f"🎬 {movie['title']} - {movie['episode']}"
+                callback_data = f"get_{movie['id']}"
+                keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
+                
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            await query.message.reply_text(
+                f"✅ **Unlock အောင်မြင်ပါပြီ!**\n🍿 **ရရှိနိုင်သော အပိုင်းများ:**",
+                reply_markup=reply_markup,
+                parse_mode="Markdown"
+            )
+        except Exception as e:
+            print(f"Error showing episodes: {e}")
+            
+    # 2. သီးသန့် အပိုင်း (Video) ကို တောင်းတဲ့အခါ
+    elif data.startswith("get_"):
         movie_id = int(data.split("_")[1])
         
         try:
@@ -199,18 +244,13 @@ def main():
     application.add_handler(CommandHandler("search", search_movie))
     application.add_handler(MessageHandler(filters.VIDEO | filters.Document.ALL, handle_admin_video))
     
-    # Callback Query Handler (ခလုတ်နှိပ်တာကို ဖမ်းရန်)
-    from telegram.ext import CallbackQueryHandler
     application.add_handler(CallbackQueryHandler(button_callback))
 
-    # Flask ကို Background Thread နဲ့ စတင်ခြင်း
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
 
-    print("Movie Bot with Supabase Persistence and Flask is running...")
-    
-    # Telegram Bot Polling စတင်ခြင်း
+    print("Movie Bot with Adsterra Unlock Flow is running...")
     application.run_polling()
 
 if __name__ == '__main__':
