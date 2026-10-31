@@ -41,11 +41,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     args = context.args
     
+    # Bot ထဲကို စစချင်း ဝင်လာတဲ့အခါ (သို့မဟုတ် /start နှိပ်တဲ့အခါ) ပုံထဲကလို ဆွဲဆောင်မှုရှိတဲ့ Welcome စာသား
     if not args:
         welcome_text = (
-            f"🎬 **မင်္ဂလာပါ {user.first_name}!**\n\n"
-            "🍿 **Movie & Anime Sharing Bot မှ ကြိုဆိုပါတယ်။**\n"
-            "ဇာတ်ကားများကို ရှာဖွေလိုပါက - `/search ဇာတ်ကားနာမည်` ဟု ရိုက်ရှာပါ။"
+            f"👋 **မင်္ဂလာပါ {user.first_name}!**\n\n"
+            "🤖 **ကမ္ဘာ့ပြင်ပကနေ မေတ္တာနဲ့ ကြိုဆိုပါတယ်ဗျာ။**\n\n"
+            "✨ ကျွန်တော်ကတော့ နိုင်ငံတကာက ရုပ်ရှင်တွေ၊ Anime တွေနဲ့ Animation ကာတွန်းကားကောင်းလေးများကို မြန်မာစာတန်းထိုးနဲ့ တစ်စုတစ်စည်းတည်း ရှာဖွေကြည့်ရှုနိုင်ဖို့ ဖန်တီးထားတဲ့ စက်ရုပ်လေး ဖြစ်ပါတယ်။\n\n"
+            "🔍 ကြည့်ချင်တဲ့ ဇာတ်ကားနာမည်ကို `/search ဇာတ်ကားနာမည်` လို့ ရိုက်ပြီး ရှာဖွေကြည့်ရှုနိုင်ပါတယ်ဗျာ။"
         )
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
@@ -81,7 +83,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
-        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ဇာတ်ကားနာမည် ထည့်ပါ (ဥပမာသမား - `/search One Punch Man`)")
+        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ဇာတ်ကားနာမည် ထည့်ပါ (ဥပမာ - `/search One Punch Man`)")
         return
         
     query = " ".join(context.args)
@@ -140,10 +142,10 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             for movie in movies_data:
                 review_text = movie.get('review', 'ဇာတ်ကားကောင်းလေးမို့ လက်မလွတ်တမ်း ကြည့်သင့်ပါတယ်။')
                 
-                # ချန်နယ်လင့်ခ်များ လုံးဝမပါတော့ဘဲ သပ်ရပ်တဲ့ Caption ပုံစံ[span_1](start_span)[span_1](end_span)
                 caption_text = (
                     f"🎬 **{movie['title']} - {movie['episode']}**\n\n"
-                    f"📝 **Review:**\n{review_text}"
+                    f"📝 **Review:**\n{review_text}\n\n"
+                    "⏳ **ဒီဗီဒီယိုဟာ (၅) မိနစ်အတွင်း အလိုအလျောက် ပျက်သွားမှာဖြစ်လို့ အမြန်ဆုံး Saved Messages ထဲ Forward လုပ်ပြီး သိမ်းထားပါ!**"
                 )
                 
                 sent_msg = await context.bot.send_video(
@@ -153,11 +155,11 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                     parse_mode="Markdown"
                 )
                 
-                # (၅) မိနစ်ကြာလျှင် ဗီဒီယို အလိုအလျောက် ပျက်မည့်စနစ်
+                # ⏱️ ၅ မိနစ် (စက္ကန့် ၃၀၀) ပြည့်ရင် ဗီဒီယိုအလိုအလျောက် ဖျက်မယ့်စနစ် ထည့်သွင်းပြီးပါပြီ
                 context.application.create_task(delete_message_after_delay(context, chat_id, sent_msg.message_id, 300))
                 await asyncio.sleep(0.5)
                 
-            await query.message.reply_text("✅ ဇာတ်ကားဖိုင်များအားလုံး ပို့ပြီးပါပြီ။ Saved Messages ထဲမှာ သိမ်းထားနိုင်ပါပြီ 📥။")
+            await query.message.reply_text("✅ ဇာတ်ကားဖိုင်များအားလုံး ပို့ပြီးပါပြီ။ Saved Messages ထဲမှာ အမြန်ဆုံး သိမ်းထားလိုက်ပါတော့ 📥။")
             
         except Exception as e:
             print(f"Error sending videos: {e}")
@@ -214,7 +216,7 @@ def main():
     flask_thread.daemon = True
     flask_thread.start()
 
-    print("Clean Movie Bot without external links is running...")
+    print("Movie Bot with Auto-Delete & Welcome Message is running...")
     application.run_polling()
 
 if __name__ == '__main__':
