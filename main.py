@@ -51,20 +51,29 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
 
-    query = args[0].replace("_", " ")
+    # Deep Link ထဲက underscore (_) တွေကို Space ပြောင်းမယ်၊ Database နဲ့ တိုက်စစ်ဖို့ အဆင်ပြေအောင် လုပ်မယ်
+    raw_query = args[0].replace("_", " ")
+    query = raw_query.replace(".", "").strip()
     
     try:
+        # Supabase မှာ နာမည်တူတာကို ilike နဲ့ ရှာမည်
         response = supabase.table("movies").select("*").ilike("title", f"%{query}%").execute()
         movies_data = response.data
         
+        # အကယ်၍ အတိအကျမတွေ့ရင် စာလုံးအဓိကအစွန်း (ဥပမာ - 'Ms Servant') နဲ့ ထပ်ရှာကြည့်မည်
         if not movies_data:
-            await update.message.reply_text(f"❌ '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကားများကို မတွေ့ရှိရသေးပါ။")
+            sub_query = query.split()[-1] if len(query.split()) > 1 else query
+            response = supabase.table("movies").select("*").ilike("title", f"%{sub_query}%").execute()
+            movies_data = response.data
+            
+        if not movies_data:
+            await update.message.reply_text(f"❌ '{raw_query}' နှင့် ကိုက်ညီသော ဇာတ်ကားများကို မတွေ့ရှိရသေးပါ။")
             return
             
         context.user_data['unlocked'] = False
         
         intro_text = (
-            f"🎬 **{query}** ဇာတ်ကားကို ရယူရန်...\n\n"
+            f"🎬 **{raw_query}** ဇာတ်ကားကို ရယူရန်...\n\n"
             "၁။ အောက်ပါ **'🔓 Unlock Link (Ad)'** ကို နှိပ်ပြီး ကြော်ငြာကျော်ပါ။\n"
             "၂။ ပြီးလျှင် **'📥 ဇာတ်ကားများ ရယူရန်'** ကို နှိပ်ပါ။"
         )
@@ -133,13 +142,18 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             movies_data = response.data
             
             if not movies_data:
+                # ဒုတိယအကြိမ် ထပ်မံရှာဖွေခြင်း (ပိုမိုတိကျစေရန်)
+                sub_query = search_query.split()[-1] if len(search_query.split()) > 1 else search_query
+                response = supabase.table("movies").select("*").ilike("title", f"%{sub_query}%").execute()
+                movies_data = response.data
+                
+            if not movies_data:
                 await query.message.reply_text(f"❌ ဇာတ်ကားဖိုင်များကို မတွေ့ရှိရတော့ပါ။")
                 return
                 
             chat_id = update.effective_chat.id
             
             for movie in movies_data:
-                # review column မရှိသေးရင် ပုံသေစာသားသုံးမည်
                 review_text = movie.get('review', 'ဇာတ်ကားကောင်းလေးမို့ လက်မလွတ်တမ်း ကြည့်သင့်ပါတယ်။')
                 
                 caption_text = (
@@ -186,7 +200,6 @@ async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE)
         episode = parts[1].strip() if len(parts) > 1 else "Ep 1"
         
         try:
-            # error မတက်အောင် review ကို ဖြုတ်ပြီး title, episode, file_id သက်သက် သိမ်းမည်
             data = {"title": title, "episode": episode, "file_id": file_id}
             supabase.table("movies").insert(data).execute()
             
