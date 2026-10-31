@@ -41,7 +41,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     args = context.args
     
-    # Bot ထဲကို စစချင်း ဝင်လာတဲ့အခါ (သို့မဟုတ် /start နှိပ်တဲ့အခါ) ပုံထဲကလို ဆွဲဆောင်မှုရှိတဲ့ Welcome စာသား
     if not args:
         welcome_text = (
             f"👋 **မင်္ဂလာပါ {user.first_name}!**\n\n"
@@ -140,6 +139,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             chat_id = update.effective_chat.id
             
             for movie in movies_data:
+                # review column မရှိသေးရင် ပုံသေစာသားသုံးမည်
                 review_text = movie.get('review', 'ဇာတ်ကားကောင်းလေးမို့ လက်မလွတ်တမ်း ကြည့်သင့်ပါတယ်။')
                 
                 caption_text = (
@@ -155,7 +155,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                     parse_mode="Markdown"
                 )
                 
-                # ⏱️ ၅ မိနစ် (စက္ကန့် ၃၀၀) ပြည့်ရင် ဗီဒီယိုအလိုအလျောက် ဖျက်မယ့်စနစ် ထည့်သွင်းပြီးပါပြီ
+                # ⏱️ ၅ မိနစ် (စက္ကန့် ၃၀၀) ပြည့်ရင် ဗီဒီယိုအလိုအလျောက် ဖျက်မယ့်စနစ်
                 context.application.create_task(delete_message_after_delay(context, chat_id, sent_msg.message_id, 300))
                 await asyncio.sleep(0.5)
                 
@@ -180,21 +180,20 @@ async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if update.message.video or update.message.document:
         file_id = update.message.video.file_id if update.message.video else update.message.document.file_id
         
-        caption = update.message.caption or "Movie | Ep 1 | Review text here"
+        caption = update.message.caption or "Movie | Ep 1"
         parts = caption.split("|")
         title = parts[0].strip() if len(parts) > 0 else "Movie"
         episode = parts[1].strip() if len(parts) > 1 else "Ep 1"
-        review = parts[2].strip() if len(parts) > 2 else "ဇာတ်ကားကောင်းလေးပါ"
         
         try:
-            data = {"title": title, "episode": episode, "file_id": file_id, "review": review}
+            # error မတက်အောင် review ကို ဖြုတ်ပြီး title, episode, file_id သက်သက် သိမ်းမည်
+            data = {"title": title, "episode": episode, "file_id": file_id}
             supabase.table("movies").insert(data).execute()
             
             await update.message.reply_text(
                 f"✅ **Database သို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!**\n\n"
                 f"🎬 နာမည်: `{title}`\n"
-                f"📌 အပိုင်း: `{episode}`\n"
-                f"📝 Review: `{review}`",
+                f"📌 အပိုင်း: `{episode}`",
                 parse_mode="Markdown"
             )
         except Exception as e:
@@ -216,7 +215,7 @@ def main():
     flask_thread.daemon = True
     flask_thread.start()
 
-    print("Movie Bot with Auto-Delete & Welcome Message is running...")
+    print("Movie Bot is fully running and active...")
     application.run_polling()
 
 if __name__ == '__main__':
