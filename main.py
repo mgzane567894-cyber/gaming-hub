@@ -44,8 +44,8 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not args:
         welcome_text = (
             f"🎬 **မင်္ဂလာပါ {user.first_name}!**\n\n"
-            "🍿 **Movie Sharing Hub Bot မှ ကြိုဆိုပါတယ်။**\n"
-            "ရုပ်ရှင်နှင့် ဇာတ်ကားများကို ရှာဖွေလိုပါက - `/search ရုပ်ရှင်နာမည်` ဟု ရိုက်ရှာပါ။"
+            "🍿 **Movie & Anime Sharing Bot မှ ကြိုဆိုပါတယ်။**\n"
+            "ဇာတ်ကားများကို ရှာဖွေလိုပါက - `/search ဇာတ်ကားနာမည်` ဟု ရိုက်ရှာပါ။"
         )
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
@@ -60,7 +60,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f"❌ '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကားများကို မတွေ့ရှိရသေးပါ။")
             return
             
-        # အဝင်မှာ Adsterra လင့်ခ်နဲ့ Unlock လုပ်ခိုင်းမယ့် ပုံစံ
         context.user_data['unlocked'] = False
         
         intro_text = (
@@ -82,7 +81,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
-        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ရုပ်ရှင်နာမည် ထည့်ပါ (ဥပမာ - `/search Blue Box`)")
+        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ဇာတ်ကားနာမည် ထည့်ပါ (ဥပမာသမား - `/search One Punch Man`)")
         return
         
     query = " ".join(context.args)
@@ -136,32 +135,29 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 await query.message.reply_text(f"❌ ဇာတ်ကားဖိုင်များကို မတွေ့ရှိရတော့ပါ။")
                 return
                 
-            # သားရီးကြိုက်တဲ့ ပုံစံလို Review စာသားနဲ့ ဗီဒီယိုတွေကို တန်းပြီး ပို့ပေးမယ့် ပုံစံ
             chat_id = update.effective_chat.id
             
             for movie in movies_data:
-                # ဇာတ်ကားထဲမှာ review သို့မဟုတ် description ထည့်ထားတာကို ယူမည် (မရှိရင် ပုံသေစာသားထည့်မည်)
-                review_text = movie.get('review', 'Review: ဇာတ်ကားကောင်းလေးမို့ လက်မလွတ်တမ်း ကြည့်သင့်ပါတယ်။')
+                review_text = movie.get('review', 'ဇာတ်ကားကောင်းလေးမို့ လက်မလွတ်တမ်း ကြည့်သင့်ပါတယ်။')
                 
+                # ချန်နယ်လင့်ခ်များ လုံးဝမပါတော့ဘဲ သပ်ရပ်တဲ့ Caption ပုံစံ[span_1](start_span)[span_1](end_span)
                 caption_text = (
                     f"🎬 **{movie['title']} - {movie['episode']}**\n\n"
-                    f"📝 **Review:**\n{review_text}\n\n"
-                    f"🔗 **Link စုစောင်းမှု:** [Movie Sharing Hub](https://t.me/aklmovie1)\n"
-                    f"📌 @aklmovie1"
+                    f"📝 **Review:**\n{review_text}"
                 )
                 
-                # ဗီဒီယိုနဲ့ စာသားကို တန်းပို့မည်
                 sent_msg = await context.bot.send_video(
                     chat_id=chat_id,
                     video=movie['file_id'],
                     caption=caption_text,
                     parse_mode="Markdown"
                 )
-                # ၅ မိနစ်နေရင် ဖျက်မယ့် စနစ် (ကြိုက်ရင် ထည့် သို့မဟုတ် ဖြုတ်ထားနိုင်ပါတယ်)
-                context.application.create_task(delete_message_after_delay(context, chat_id, sent_msg.message_id, 300))
-                await asyncio.sleep(0.5)  # စာတန်းတွေ မထပ်သွားအောင် ခဏစောင့်ရန်
                 
-            await query.message.reply_text("✅ ဇာတ်ကားဖိုင်များအားလုံး ပို့ပြီးပါပြီ။ Saved Messages ထဲမှာ သိမ်းထားနိုင်ပါပြီ 📥[span_0](start_span)[span_0](end_span)။")
+                # (၅) မိနစ်ကြာလျှင် ဗီဒီယို အလိုအလျောက် ပျက်မည့်စနစ်
+                context.application.create_task(delete_message_after_delay(context, chat_id, sent_msg.message_id, 300))
+                await asyncio.sleep(0.5)
+                
+            await query.message.reply_text("✅ ဇာတ်ကားဖိုင်များအားလုံး ပို့ပြီးပါပြီ။ Saved Messages ထဲမှာ သိမ်းထားနိုင်ပါပြီ 📥။")
             
         except Exception as e:
             print(f"Error sending videos: {e}")
@@ -174,7 +170,6 @@ async def delete_message_after_delay(context: ContextTypes.DEFAULT_TYPE, chat_id
     except Exception as e:
         print(f"Error deleting message: {e}")
 
-# Admin က ဗီဒီယိုနဲ့အတူ Review ပါ တင်လို့ရအောင် (Caption ထဲမှာ Review ပါ ထည့်တင်ရန်)
 async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.id != ADMIN_ID:
@@ -219,7 +214,7 @@ def main():
     flask_thread.daemon = True
     flask_thread.start()
 
-    print("Movie Bot with Auto-Video Send & Adsterra Link is running...")
+    print("Clean Movie Bot without external links is running...")
     application.run_polling()
 
 if __name__ == '__main__':
