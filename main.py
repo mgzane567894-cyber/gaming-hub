@@ -60,27 +60,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
             await update.message.reply_text(f"❌ '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကားများကို မတွေ့ရှိရသေးပါ။")
             return
             
-        keyboard = []
-        for movie in movies_data:
-            button_text = f"🎬 {movie['title']} - {movie['episode']}"
-            callback_data = f"get_{movie['id']}"
-            keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
-            
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        
-        # ဇာတ်ကားစာရင်း မပြခင် အရင်ဆုံး Adsterra Link ဖွင့်ခိုင်းမယ့် Button နဲ့ ပုံစံပြောင်းပါမယ်
+        # အဝင်မှာ Adsterra လင့်ခ်နဲ့ Unlock လုပ်ခိုင်းမယ့် ပုံစံ
         context.user_data['unlocked'] = False
         
         intro_text = (
-            f"🔥 **Hey {user.first_name}!**\n\n"
-            f"🍿 **'{query}' ဇာတ်ကားကို ရယူရန် အဆင့် (၂) ဆင့် လုပ်ဆောင်ပေးပါ:**\n\n"
-            "၁။ အောက်ပါ **'🔓 Unlock Download Link (Ad)'** ကို တစ်ချက်နှိပ်ပြီး ကြော်ငြာကြည့်ပေးပါ။\n"
-            "၂။ ပြီးလျှင် **'📥 အပိုင်းများ ရယူရန်'** ကို နှိပ်ပါ!"
+            f"🎬 **{query}** ဇာတ်ကားကို ရယူရန်...\n\n"
+            "၁။ အောက်ပါ **'🔓 Unlock Link (Ad)'** ကို နှိပ်ပြီး ကြော်ငြာကျော်ပါ။\n"
+            "၂။ ပြီးလျှင် **'📥 ဇာတ်ကားများ ရယူရန်'** ကို နှိပ်ပါ။"
         )
         
         intro_keyboard = [
-            [InlineKeyboardButton("🔓 Unlock Download Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
-            [InlineKeyboardButton("📥 အပိုင်းများ ရယူရန်", callback_data=f"show_episodes_{query}")]
+            [InlineKeyboardButton("🔓 Unlock Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
+            [InlineKeyboardButton("📥 ဇာတ်ကားများ ရယူရန်", callback_data=f"show_vids_{query}")]
         ]
         
         await update.message.reply_text(intro_text, reply_markup=InlineKeyboardMarkup(intro_keyboard), parse_mode="Markdown")
@@ -91,7 +82,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if not context.args:
-        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ရုပ်ရှင်နာမည် ထည့်ပါ (ဥပမာ - `/search Solo Leveling`)")
+        await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ရုပ်ရှင်နာမည် ထည့်ပါ (ဥပမာ - `/search Blue Box`)")
         return
         
     query = " ".join(context.args)
@@ -101,39 +92,37 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         movies = response.data
         
         if not movies:
-            await update.message.reply_text(f"🔍 '{query}' နှင့် ကိုက်ညီသော ရုပ်ရှင်/အန်နီမေးရှင်း မတွေ့ရှိပါ။")
+            await update.message.reply_text(f"🔍 '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကား မတွေ့ရှိပါ။")
             return
             
         context.user_data['unlocked'] = False
         
         intro_text = (
-            f"🍿 **'{query}' အတွက် ရှာတွေ့သော ဇာတ်ကားများကို ရယူရန်:**\n\n"
-            "၁။ အောက်ပါ **'🔓 Unlock Download Link (Ad)'** ကို အရင် နှိပ်ပါ။\n"
-            "၂။ ပြီးလျှင် **'📥 စာရင်းပြရန်'** ကို နှိပ်ပါ။"
+            f"🍿 **'{query}' ဇာတ်ကားများကို ရယူရန် -**\n\n"
+            "၁။ **'🔓 Unlock Link (Ad)'** ကို အရင် နှိပ်ပါ။\n"
+            "၂။ ပြီးလျှင် **'📥 ဇာတ်ကားများ ရယူရန်'** ကို နှိပ်ပါ။"
         )
         
         intro_keyboard = [
-            [InlineKeyboardButton("🔓 Unlock Download Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
-            [InlineKeyboardButton("📥 ဇာတ်ကားစာရင်း ပြရန်", callback_data=f"show_episodes_{query}")]
+            [InlineKeyboardButton("🔓 Unlock Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
+            [InlineKeyboardButton("📥 ဇာတ်ကားများ ရယူရန်", callback_data=f"show_vids_{query}")]
         ]
         
         await update.message.reply_text(intro_text, reply_markup=InlineKeyboardMarkup(intro_keyboard), parse_mode="Markdown")
     except Exception as e:
         print(f"Search error: {e}")
 
-# Inline Button နှိပ်လိုက်တဲ့အခါ
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     data = query.data
     
-    # 1. အပိုင်းစာရင်း မပြခင် Unlock စစ်ဆေးခြင်း
-    if data.startswith("show_episodes_"):
-        search_query = data.replace("show_episodes_", "")
+    if data.startswith("show_vids_"):
+        search_query = data.replace("show_vids_", "")
         
         if not context.user_data.get('unlocked', False):
             context.user_data['unlocked'] = True
             await query.answer(
-                text="⚠️ အရင်ဆုံး အပေါ်က '🔓 Unlock Download Link (Ad)' ကို နှိပ်ပြီး ကြော်ငြာကြည့်ပေးပါ သားရီး!",
+                text="⚠️ အရင်ဆုံး အပေါ်က '🔓 Unlock Link (Ad)' ကို နှိပ်ပြီး ကြော်ငြာကြည့်ပေးပါ သားရီး!",
                 show_alert=True
             )
             return
@@ -144,68 +133,48 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             movies_data = response.data
             
             if not movies_data:
-                await query.message.reply_text(f"❌ အပိုင်းများကို မတွေ့ရှိရတော့ပါ။")
+                await query.message.reply_text(f"❌ ဇာတ်ကားဖိုင်များကို မတွေ့ရှိရတော့ပါ။")
                 return
                 
-            keyboard = []
-            for movie in movies_data:
-                button_text = f"🎬 {movie['title']} - {movie['episode']}"
-                callback_data = f"get_{movie['id']}"
-                keyboard.append([InlineKeyboardButton(button_text, callback_data=callback_data)])
-                
-            reply_markup = InlineKeyboardMarkup(keyboard)
-            await query.message.reply_text(
-                f"✅ **Unlock အောင်မြင်ပါပြီ!**\n🍿 **ရရှိနိုင်သော အပိုင်းများ:**",
-                reply_markup=reply_markup,
-                parse_mode="Markdown"
-            )
-        except Exception as e:
-            print(f"Error showing episodes: {e}")
+            # သားရီးကြိုက်တဲ့ ပုံစံလို Review စာသားနဲ့ ဗီဒီယိုတွေကို တန်းပြီး ပို့ပေးမယ့် ပုံစံ
+            chat_id = update.effective_chat.id
             
-    # 2. သီးသန့် အပိုင်း (Video) ကို တောင်းတဲ့အခါ
-    elif data.startswith("get_"):
-        movie_id = int(data.split("_")[1])
-        
-        try:
-            response = supabase.table("movies").select("*").eq("id", movie_id).execute()
-            if response.data:
-                movie = response.data[0]
-                await send_movie_with_timer(update, context, movie['file_id'], f"{movie['title']} - {movie['episode']}")
-            else:
-                await query.message.reply_text("❌ ဒီဖိုင်ကို မတွေ့တော့ပါ။")
+            for movie in movies_data:
+                # ဇာတ်ကားထဲမှာ review သို့မဟုတ် description ထည့်ထားတာကို ယူမည် (မရှိရင် ပုံသေစာသားထည့်မည်)
+                review_text = movie.get('review', 'Review: ဇာတ်ကားကောင်းလေးမို့ လက်မလွတ်တမ်း ကြည့်သင့်ပါတယ်။')
+                
+                caption_text = (
+                    f"🎬 **{movie['title']} - {movie['episode']}**\n\n"
+                    f"📝 **Review:**\n{review_text}\n\n"
+                    f"🔗 **Link စုစောင်းမှု:** [Movie Sharing Hub](https://t.me/aklmovie1)\n"
+                    f"📌 @aklmovie1"
+                )
+                
+                # ဗီဒီယိုနဲ့ စာသားကို တန်းပို့မည်
+                sent_msg = await context.bot.send_video(
+                    chat_id=chat_id,
+                    video=movie['file_id'],
+                    caption=caption_text,
+                    parse_mode="Markdown"
+                )
+                # ၅ မိနစ်နေရင် ဖျက်မယ့် စနစ် (ကြိုက်ရင် ထည့် သို့မဟုတ် ဖြုတ်ထားနိုင်ပါတယ်)
+                context.application.create_task(delete_message_after_delay(context, chat_id, sent_msg.message_id, 300))
+                await asyncio.sleep(0.5)  # စာတန်းတွေ မထပ်သွားအောင် ခဏစောင့်ရန်
+                
+            await query.message.reply_text("✅ ဇာတ်ကားဖိုင်များအားလုံး ပို့ပြီးပါပြီ။ Saved Messages ထဲမှာ သိမ်းထားနိုင်ပါပြီ 📥[span_0](start_span)[span_0](end_span)။")
+            
         except Exception as e:
-            print(f"Callback error: {e}")
-
-async def send_movie_with_timer(update: Update, context: ContextTypes.DEFAULT_TYPE, video_file_id: str, movie_name: str):
-    chat_id = update.effective_chat.id
-    
-    caption_text = (
-        f"🍿 **{movie_name}**\n\n"
-        "⏳ **ဒီဗီဒီယိုဟာ (၅) မိနစ်အတွင်း အလိုအလျောက် ပျက်သွားမှာဖြစ်လို့ အမြန်ဆုံး Forward လုပ်ပြီး သိမ်းထားပါ!**"
-    )
-    
-    sent_message = await context.bot.send_video(
-        chat_id=chat_id,
-        video=video_file_id,
-        caption=caption_text,
-        parse_mode="Markdown"
-    )
-    
-    context.application.create_task(delete_message_after_delay(context, chat_id, sent_message.message_id, 300))
+            print(f"Error sending videos: {e}")
+            await query.message.reply_text("⚠️ ဗီဒီယိုများ ပို့ရာတွင် အမှားအယွင်း ရှိသွားပါသည်။")
 
 async def delete_message_after_delay(context: ContextTypes.DEFAULT_TYPE, chat_id: int, message_id: int, delay_seconds: int):
     await asyncio.sleep(delay_seconds)
     try:
         await context.bot.delete_message(chat_id=chat_id, message_id=message_id)
-        warning_msg = await context.bot.send_message(
-            chat_id=chat_id, 
-            text="⚠️ (၅) မိနစ်ပြည့်သွားပြီဖြစ်၍ ရုပ်ရှင်ဗီဒီယိုကို Bot ထဲမှ ဖျက်လိုက်ပါပြီ။ သိမ်းထားပြီးသားဖြစ်မယ်လို့ မျှော်လင့်ပါတယ်။"
-        )
-        await asyncio.sleep(10)
-        await context.bot.delete_message(chat_id=chat_id, message_id=warning_msg.message_id)
     except Exception as e:
         print(f"Error deleting message: {e}")
 
+# Admin က ဗီဒီယိုနဲ့အတူ Review ပါ တင်လို့ရအောင် (Caption ထဲမှာ Review ပါ ထည့်တင်ရန်)
 async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
     if user.id != ADMIN_ID:
@@ -214,20 +183,21 @@ async def handle_admin_video(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if update.message.video or update.message.document:
         file_id = update.message.video.file_id if update.message.video else update.message.document.file_id
         
-        caption = update.message.caption or "Unknown Title | Ep 1"
+        caption = update.message.caption or "Movie | Ep 1 | Review text here"
         parts = caption.split("|")
         title = parts[0].strip() if len(parts) > 0 else "Movie"
         episode = parts[1].strip() if len(parts) > 1 else "Ep 1"
+        review = parts[2].strip() if len(parts) > 2 else "ဇာတ်ကားကောင်းလေးပါ"
         
         try:
-            data = {"title": title, "episode": episode, "file_id": file_id}
+            data = {"title": title, "episode": episode, "file_id": file_id, "review": review}
             supabase.table("movies").insert(data).execute()
             
             await update.message.reply_text(
                 f"✅ **Database သို့ အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ!**\n\n"
                 f"🎬 နာမည်: `{title}`\n"
                 f"📌 အပိုင်း: `{episode}`\n"
-                f"📁 File ID: `{file_id}`",
+                f"📝 Review: `{review}`",
                 parse_mode="Markdown"
             )
         except Exception as e:
@@ -243,14 +213,13 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("search", search_movie))
     application.add_handler(MessageHandler(filters.VIDEO | filters.Document.ALL, handle_admin_video))
-    
     application.add_handler(CallbackQueryHandler(button_callback))
 
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
 
-    print("Movie Bot with Adsterra Unlock Flow is running...")
+    print("Movie Bot with Auto-Video Send & Adsterra Link is running...")
     application.run_polling()
 
 if __name__ == '__main__':
