@@ -1,6 +1,7 @@
 import logging
 import os
 import asyncio
+import re
 import threading
 from flask import Flask
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
@@ -51,18 +52,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(welcome_text, parse_mode="Markdown")
         return
 
-    # Deep Link ထဲက underscore (_) တွေကို Space ပြောင်းမယ်၊ Database နဲ့ တိုက်စစ်ဖို့ အဆင်ပြေအောင် လုပ်မယ်
     raw_query = args[0].replace("_", " ")
-    query = raw_query.replace(".", "").strip()
+    
+    # 🛠️ ကွင်းစကွင်းပိတ်နဲ့ နှစ် (ဥပမာ - (2024)) များကို ဖယ်ရှားပြီး အစက်များကို ဖြတ်ထုတ်ပေးခြင်း (Database ရှာရလွယ်ကူစေရန်)
+    clean_query = re.sub(r'\s*\([^)]*\)', '', raw_query).replace(".", "").strip()
     
     try:
-        # Supabase မှာ နာမည်တူတာကို ilike နဲ့ ရှာမည်
-        response = supabase.table("movies").select("*").ilike("title", f"%{query}%").execute()
+        response = supabase.table("movies").select("*").ilike("title", f"%{clean_query}%").execute()
         movies_data = response.data
         
-        # အကယ်၍ အတိအကျမတွေ့ရင် စာလုံးအဓိကအစွန်း (ဥပမာ - 'Ms Servant') နဲ့ ထပ်ရှာကြည့်မည်
         if not movies_data:
-            sub_query = query.split()[-1] if len(query.split()) > 1 else query
+            # အကယ်၍ အတိအကျမတွေ့ရင် နောက်ဆုံး စာလုံးအစွန်းနဲ့ ထပ်ရှာမည်
+            sub_query = clean_query.split()[-1] if len(clean_query.split()) > 1 else clean_query
             response = supabase.table("movies").select("*").ilike("title", f"%{sub_query}%").execute()
             movies_data = response.data
             
@@ -80,7 +81,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         
         intro_keyboard = [
             [InlineKeyboardButton("🔓 Unlock Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
-            [InlineKeyboardButton("📥 ဇာတ်ကားများ ရယူရန်", callback_data=f"show_vids_{query}")]
+            [InlineKeyboardButton("📥 ဇာတ်ကားများ ရယူရန်", callback_data=f"show_vids_{clean_query}")]
         ]
         
         await update.message.reply_text(intro_text, reply_markup=InlineKeyboardMarkup(intro_keyboard), parse_mode="Markdown")
@@ -94,27 +95,28 @@ async def search_movie(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         await update.message.reply_text("ကျေးဇူးပြု၍ ရှာလိုသော ဇာတ်ကားနာမည် ထည့်ပါ (ဥပမာ - `/search One Punch Man`)")
         return
         
-    query = " ".join(context.args)
+    raw_query = " ".join(context.args)
+    clean_query = re.sub(r'\s*\([^)]*\)', '', raw_query).replace(".", "").strip()
     
     try:
-        response = supabase.table("movies").select("*").ilike("title", f"%{query}%").execute()
+        response = supabase.table("movies").select("*").ilike("title", f"%{clean_query}%").execute()
         movies = response.data
         
         if not movies:
-            await update.message.reply_text(f"🔍 '{query}' နှင့် ကိုက်ညီသော ဇာတ်ကား မတွေ့ရှိပါ။")
+            await update.message.reply_text(f"🔍 '{raw_query}' နှင့် ကိုက်ညီသော ဇာတ်ကား မတွေ့ရှိပါ။")
             return
             
         context.user_data['unlocked'] = False
         
         intro_text = (
-            f"🍿 **'{query}' ဇာတ်ကားများကို ရယူရန် -**\n\n"
+            f"🍿 **'{raw_query}' ဇာတ်ကားများကို ရယူရန် -**\n\n"
             "၁။ **'🔓 Unlock Link (Ad)'** ကို အရင် နှိပ်ပါ။\n"
             "၂။ ပြီးလျှင် **'📥 ဇာတ်ကားများ ရယူရန်'** ကို နှိပ်ပါ။"
         )
         
         intro_keyboard = [
             [InlineKeyboardButton("🔓 Unlock Link (Ad)", url=ADSTERRA_DIRECT_LINK)],
-            [InlineKeyboardButton("📥 ဇာတ်ကားများ ရယူရန်", callback_data=f"show_vids_{query}")]
+            [InlineKeyboardButton("📥 ဇာတ်ကားများ ရယူရန်", callback_data=f"show_vids_{clean_query}")]
         ]
         
         await update.message.reply_text(intro_text, reply_markup=InlineKeyboardMarkup(intro_keyboard), parse_mode="Markdown")
@@ -142,7 +144,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             movies_data = response.data
             
             if not movies_data:
-                # ဒုတိယအကြိမ် ထပ်မံရှာဖွေခြင်း (ပိုမိုတိကျစေရန်)
                 sub_query = search_query.split()[-1] if len(search_query.split()) > 1 else search_query
                 response = supabase.table("movies").select("*").ilike("title", f"%{sub_query}%").execute()
                 movies_data = response.data
